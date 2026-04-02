@@ -180,9 +180,9 @@ def update_attendance(
     student_df,
     google_sheet_df,
     access_token,
-    max_workers=5,
-    batch_size=50,
-    pause_seconds=1,
+    max_workers=3,
+    batch_size=25,
+    pause_seconds=5,
 ):
     if student_df is None or student_df.empty:
         return {
