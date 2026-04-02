@@ -38,17 +38,17 @@ SHEET_NAME = "OOCAttend"
 
 
 def get_google_sheet_df():
-    creds = Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE,
-        scopes=[
-            "https://www.googleapis.com/auth/spreadsheets",
-            "https://www.googleapis.com/auth/drive",
-        ],
-    )
-    # creds, _ = default(scopes=[
-    #     "https://www.googleapis.com/auth/spreadsheets",
-    #     "https://www.googleapis.com/auth/drive"
-    # ])
+    # creds = Credentials.from_service_account_file(
+    #     SERVICE_ACCOUNT_FILE,
+    #     scopes=[
+    #         "https://www.googleapis.com/auth/spreadsheets",
+    #         "https://www.googleapis.com/auth/drive",
+    #     ],
+    # )
+    creds, _ = default(scopes=[
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive"
+    ])
     client = gspread.authorize(creds)
 
     try:
