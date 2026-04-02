@@ -126,6 +126,8 @@ def run_job():
             batch_size=50,
             pause_seconds=1,
         )
+        failed_results = [r for r in result["results"] if r["action"] == "failed"]
+
 
         return {
             "message": "Completed",
@@ -133,7 +135,7 @@ def run_job():
             "success": result["success"],
             "failed": result["failed"],
             "skipped": result["skipped"],
-            "sample_results": result["results"][:10],
+            "failed_samples": failed_results[:10],
         }, 200
 
     except Exception:
