@@ -38,17 +38,17 @@ SHEET_NAME = "OOCAttend"
 
 
 def get_google_sheet_df():
-    # creds = Credentials.from_service_account_file(
-    #     SERVICE_ACCOUNT_FILE,
-    #     scopes=[
-    #         "https://www.googleapis.com/auth/spreadsheets",
-    #         "https://www.googleapis.com/auth/drive",
-    #     ],
-    # )
-    creds, _ = default(scopes=[
-        "https://www.googleapis.com/auth/spreadsheets",
-        "https://www.googleapis.com/auth/drive"
-    ])
+    creds = Credentials.from_service_account_file(
+        SERVICE_ACCOUNT_FILE,
+        scopes=[
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/drive",
+        ],
+    )
+    # creds, _ = default(scopes=[
+    #     "https://www.googleapis.com/auth/spreadsheets",
+    #     "https://www.googleapis.com/auth/drive"
+    # ])
     client = gspread.authorize(creds)
 
     try:
@@ -122,9 +122,9 @@ def run_job():
             student_df=student_df,
             google_sheet_df=google_sheet_df,
             access_token=access_token,
-            max_workers=5,
-            batch_size=50,
-            pause_seconds=1,
+            max_workers=3,
+            batch_size=25,
+            pause_seconds=5,
         )
         failed_results = [r for r in result["results"] if r["action"] == "failed"]
 
