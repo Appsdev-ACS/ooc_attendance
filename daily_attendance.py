@@ -102,9 +102,9 @@ def get_daily_attendance(DAILY_ATTENDANCE_URL, access_token):
 
 
 def patch_one_attendance(record, access_token, timeout=30):
-    student_id = record["student_id"]
+    student_id = record["Person ID"]
     att_id = int(record["id"])
-    att_code = int(record["Att Code"])
+    # att_code = int(record["Att Code"])
     note_code = record.get("Note Code", "")
 
     url = f"https://api.veracross.com/ACSAD/v3/master_attendance/{att_id}"
@@ -116,7 +116,7 @@ def patch_one_attendance(record, access_token, timeout=30):
 
     payload = {
         "data": {
-            "student_attendance_status": att_code,
+            # "student_attendance_status": att_code,
             "notes": "" if pd.isna(note_code) else str(note_code),
         }
     }
@@ -134,7 +134,7 @@ def patch_one_attendance(record, access_token, timeout=30):
                 "Updated attendance successfully. student_id=%s att_id=%s att_code=%s",
                 student_id,
                 att_id,
-                att_code,
+                note_code,
             )
             return {
                 "success": True,
@@ -210,7 +210,7 @@ def update_attendance(
     google_sheet_df.columns = google_sheet_df.columns.str.strip()
     student_df.columns = student_df.columns.str.strip()
 
-    required_google_cols = ["student_id", "Returned", "Att Code", "Note Code"]
+    required_google_cols = ["Person ID", "Note Code"]
     missing_cols = [col for col in required_google_cols if col not in google_sheet_df.columns]
     if missing_cols:
         logger.error("Missing required Google Sheet columns: %s", missing_cols)
@@ -223,14 +223,14 @@ def update_attendance(
             "message": f"Missing required Google Sheet columns: {missing_cols}",
         }
 
-    google_sheet_df["student_id"] = google_sheet_df["student_id"].astype(str).str.strip()
+    google_sheet_df["Person ID"] = google_sheet_df["Person ID"].astype(str).str.strip()
     student_df["person_id"] = student_df["person_id"].astype(str).str.strip()
 
-    google_sheet_df["Att Code"] = pd.to_numeric(google_sheet_df["Att Code"], errors="coerce")
+    # google_sheet_df["Att Code"] = pd.to_numeric(google_sheet_df["Att Code"], errors="coerce")
 
     merged_df = google_sheet_df.merge(
         student_df[["id", "person_id"]],
-        left_on="student_id",
+        left_on="Person ID",
         right_on="person_id",
         how="left",
     )
@@ -239,21 +239,21 @@ def update_attendance(
     skipped_results = []
 
     for _, record in merged_df.iterrows():
-        student_id = record.get("student_id")
-        returned_value = record.get("Returned")
+        student_id = record.get("Person ID")
+        # returned_value = record.get("Returned")
         att_id = record.get("id")
-        att_code = record.get("Att Code")
+        # att_code = record.get("Att Code")
 
-        if pd.notna(returned_value) and str(returned_value).strip() != "":
-            skipped_results.append({
-                "success": False,
-                "student_id": student_id,
-                "att_id": None,
-                "status_code": None,
-                "action": "skipped",
-                "reason": "Returned has value",
-            })
-            continue
+        # if pd.notna(returned_value) and str(returned_value).strip() != "":
+        #     skipped_results.append({
+        #         "success": False,
+        #         "student_id": student_id,
+        #         "att_id": None,
+        #         "status_code": None,
+        #         "action": "skipped",
+        #         "reason": "Returned has value",
+        #     })
+        #     continue
 
         if pd.isna(att_id):
             skipped_results.append({
@@ -266,16 +266,16 @@ def update_attendance(
             })
             continue
 
-        if pd.isna(att_code):
-            skipped_results.append({
-                "success": False,
-                "student_id": student_id,
-                "att_id": int(att_id),
-                "status_code": None,
-                "action": "skipped",
-                "reason": "Att Code is not numeric",
-            })
-            continue
+        # if pd.isna(att_code):
+        #     skipped_results.append({
+        #         "success": False,
+        #         "student_id": student_id,
+        #         "att_id": int(att_id),
+        #         "status_code": None,
+        #         "action": "skipped",
+        #         "reason": "Att Code is not numeric",
+        #     })
+        #     continue
 
         rows_to_update.append(record.to_dict())
 
@@ -283,6 +283,8 @@ def update_attendance(
     logger.info("Rows skipped before update: %d", len(skipped_results))
 
     update_results = []
+
+    print(rows_to_update,"update rows")
 
     for start in range(0, len(rows_to_update), batch_size):
         batch = rows_to_update[start:start + batch_size]

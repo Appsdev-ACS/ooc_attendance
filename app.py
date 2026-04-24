@@ -33,8 +33,11 @@ CLIENT_ID = os.getenv("VC_OLD_CLIENT_ID")
 CLIENT_SECRET = os.getenv("VC_OLD_CLIENT_SECRET")
 
 SERVICE_ACCOUNT_FILE = "service-account.json"
-SPREADSHEET_NAME = "Family Return Data"
-SHEET_NAME = "OOCAttend"
+# SPREADSHEET_NAME = "Family Return Data"
+# SHEET_NAME = "OOCAttend"
+
+SPREADSHEET_NAME = "Update Family Return Status"
+SHEET_NAME = "Modified"
 
 
 def get_google_sheet_df():
@@ -67,15 +70,19 @@ def get_google_sheet_df():
         df.columns = df.columns.str.strip()
 
         # Optional rename if your first columns vary
-        rename_map = {}
-        if len(df.columns) > 0 and df.columns[0] == "Date":
-            rename_map["Date"] = "student_id"
-        if len(df.columns) > 1 and df.columns[1] not in ["student_name"]:
-            rename_map[df.columns[1]] = "student_name"
+        # rename_map = {}
+        # if len(df.columns) > 0 and df.columns[0] == "Date":
+        #     rename_map["Date"] = "student_id"
+        # if len(df.columns) > 1 and df.columns[1] not in ["student_name"]:
+        #     rename_map[df.columns[1]] = "student_name"
 
-        if rename_map:
-            df = df.rename(columns=rename_map)
+        # if rename_map:
+        #     df = df.rename(columns=rename_map)
 
+
+        df = df[df["New Learning Mode"].isin(["Async", "Yet to confirm","Local School"])]
+        df = df.rename(columns={"New Learning Mode": "Note Code"})
+        print(df,"google sheet",len(df))
         logger.info(
             "Loaded %d rows from spreadsheet '%s', sheet '%s'",
             len(df),
